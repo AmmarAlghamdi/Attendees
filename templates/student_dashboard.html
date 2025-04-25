@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home - Attendance System</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f0f2f5;
+            color: #333;
+        }
+        .navbar {
+            background-color: #1a73e8;
+            color: white;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .navbar h1 {
+            margin: 0;
+            font-size: 1.5rem;
+        }
+        nav ul {
+            list-style-type: none;
+            display: flex;
+            gap: 1.5rem;
+            margin: 0;
+            padding: 0;
+        }
+        nav a {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            transition: opacity 0.3s;
+            padding-bottom: 5px;
+            position: relative;
+        }
+        nav a:hover {
+            opacity: 0.8;
+        }
+        nav a.active::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background-color: white;
+        }
+        .content {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+        .welcome {
+            background-color: white;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .dashboard {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+        .card {
+            background-color: white;
+            border-radius: 8px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+        }
+        .card h3 {
+            margin-top: 0;
+            color: #1a73e8;
+        }
+        .card i {
+            font-size: 2rem;
+            color: #1a73e8;
+            margin-bottom: 1rem;
+        }
+        button {
+            background-color: #1a73e8;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.2s;
+            width: 100%;
+            margin-top: 10px;
+        }
+        
+        button:hover {
+            background-color: #1557b0;
+            transform: scale(1.02);
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.4);
+        }
+        .modal-content {
+            background-color: #fefefe;
+            margin: 15% auto;
+            padding: 30px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 500px;
+            border-radius: 10px;
+            text-align: left;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .close:hover {
+            color: black;
+        }
+        .barcode-container {
+            margin: 20px 0;
+        }
+        .barcode-container img {
+            max-width: 100%;
+            height: auto;
+            margin: 10px 0;
+        }
+        .attendance-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+            background: white;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .attendance-table th,
+        .attendance-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        .attendance-table th {
+            background-color: #1a73e8;
+            color: white;
+        }
+        .attendance-table tr:hover {
+            background-color: #f5f5f5;
+        }
+        .status-present {
+            color: #4CAF50;
+            font-weight: bold;
+        }
+        .status-late {
+            color:rgb(200, 236, 70);
+            font-weight: bold;
+        }
+        .status-absent {
+            color: #f44336;
+            font-weight: bold;
+        }
+        .course-section {
+            margin-bottom: 30px;
+        }
+        .course-section h3 {
+            color: #1a73e8;
+            margin-bottom: 15px;
+        }
+        #excuseForm .form-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+        
+        #excuseForm label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 8px;
+            color: #1a73e8;
+        }
+        
+        #excuseForm select,
+        #excuseForm textarea {
+            width: 100%;
+            padding: 10px;
+            font-size: 15px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            box-sizing: border-box;
+        }
+        
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <h1>Welcome, {{ username }}</h1>
+        <nav>
+            <a href="{{ url_for('logout') }}" class="logout-btn">Logout</a>
+        </nav>
+    </div>
+    
+    <div class="content">
+        <div class="welcome">
+            <h2>Welcome, {{ username }}</h2>
+            <p>What would you like to do today?</p>
+        </div>
+        <div class="dashboard">
+            <div class="card">
+                <i class="fas fa-barcode"></i>
+                <h3>Your Barcode</h3>
+                <p>Click to view your personal attendance barcode.</p>
+                <button onclick="showBarcode()">View Barcode</button>
+            </div>
+            <div class="card">
+                <i class="fas fa-history"></i>
+                <h3>Attendance History</h3>
+                <p>View your attendance records for all courses.</p>
+                <button onclick="showAttendanceHistory()">View History</button>
+            </div>
+            <div class="card">
+                <i class="fas fa-note-medical"></i>
+                <h3>Submit Absence Excuse</h3>
+                <p>Submit an excuse for missed lectures.</p>
+                <button onclick="showExcuseForm()">Submit Excuse</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add this modal for the barcode -->
+    <div id="barcodeModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Your Attendance Barcode</h2>
+            <div class="barcode-container">
+                <img id="barcodeImage" src="" alt="Your barcode">
+                <p>University ID: <span id="universityId"></span></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add this modal for attendance history -->
+    <div id="attendanceModal" class="modal">
+        <div class="modal-content" style="max-width: 800px;">
+            <span class="close" onclick="closeAttendanceModal()">&times;</span>
+            <h2>Attendance History</h2>
+            <div id="attendanceContent" style="max-height: 500px; overflow-y: auto;">
+                <!-- Attendance tables will be inserted here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Add this modal for submitting excuses -->
+    <div id="excuseModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeExcuseModal()">&times;</span>
+            <h2>Submit Absence Excuse</h2>
+            <form id="excuseForm">
+                <div class="form-group">
+                    <label for="excuseCourse">Course:</label>
+                    <select id="excuseCourse" name="course_id" required>
+                        <option value="">Select a course</option>
+                        {% for course in enrolled_courses %}
+                            <option value="{{ course.id }}">{{ course.code }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="excuseLecture">Lecture Number:</label>
+                    <select id="excuseLecture" name="lecture_number" required>
+                        <option value="">Select a lecture</option>
+                    </select>                    
+                </div>
+                <div class="form-group">
+                    <label for="excuseReason">Reason:</label>
+                    <textarea id="excuseReason" name="reason" required rows="4"></textarea>
+                </div>
+                <button type="submit">Submit Excuse</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        function showBarcode() {
+            fetch('/get_barcode')
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('barcodeImage').src = data.barcode_url;
+                    document.getElementById('universityId').textContent = data.university_id;
+                    document.getElementById('barcodeModal').style.display = "block";
+                });
+        }
+
+        // Get the modal
+        var modal = document.getElementById('barcodeModal');
+        var span = document.getElementsByClassName("close")[0];
+
+        // When the user clicks on <span> (x), close the modal
+        span.onclick = function() {
+            modal.style.display = "none";
+        }
+
+        // When the user clicks anywhere outside of the modal, close it
+        window.onclick = function(event) {
+            if (event.target == modal) {
+                modal.style.display = "none";
+            }
+        }
+
+        function showAttendanceHistory() {
+            fetch('/get_attendance_history')
+                .then(response => response.json())
+                .then(data => {
+                    const content = document.getElementById('attendanceContent');
+                    content.innerHTML = '';
+                    
+                    Object.entries(data).forEach(([courseName, attendance]) => {
+                        const section = document.createElement('div');
+                        section.className = 'course-section';
+                        
+                        section.innerHTML = `
+                            <h3>${courseName}</h3>
+                            <table class="attendance-table">
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Lecture</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${attendance.map(record => `
+                                        <tr>
+                                            <td>${new Date(record.date).toLocaleDateString()}</td>
+                                            <td>Lecture ${record.lecture_number}</td>
+                                            <td class="status-${record.status.toLowerCase()}">
+                                                ${record.status.charAt(0).toUpperCase() + record.status.slice(1)}
+                                            </td>
+                                        </tr>
+                                    `).join('')}
+                                </tbody>
+                            </table>
+                        `;
+                        content.appendChild(section);
+                    });
+                    
+                    document.getElementById('attendanceModal').style.display = 'block';
+                });
+        }
+
+        function closeAttendanceModal() {
+            document.getElementById('attendanceModal').style.display = 'none';
+        }
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('attendanceModal');
+            if (event.target == modal) {
+                modal.style.display = 'none';
+            }
+        }
+
+        function showExcuseForm() {
+            document.getElementById('excuseModal').style.display = 'block';
+        }
+
+        function closeExcuseModal() {
+            document.getElementById('excuseModal').style.display = 'none';
+        }
+
+        document.getElementById('excuseForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const formData = {
+                course_id: document.getElementById('excuseCourse').value,
+                lecture_number: document.getElementById('excuseLecture').value,
+                reason: document.getElementById('excuseReason').value
+            };
+
+            fetch('/submit_excuse', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(formData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                alert('Excuse submitted successfully!');
+                closeExcuseModal();
+            })
+            .catch(error => {
+                alert('Error submitting excuse');
+            });
+        });
+
+        function showExcuseForm() {
+            document.getElementById('excuseModal').style.display = 'block';
+        }
+        document.getElementById('excuseCourse').addEventListener('change', function () {
+            const courseId = this.value;
+            const lectureSelect = document.getElementById('excuseLecture');
+            lectureSelect.innerHTML = '<option value="">Select a lecture</option>';
+        
+            if (courseId) {
+                fetch(`/get_absent_lectures/${courseId}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.lectures.length === 0) {
+                            const option = document.createElement('option');
+                            option.textContent = 'No absences or late lectures found';
+                            option.disabled = true;
+                            lectureSelect.appendChild(option);
+                        } else {
+                            data.lectures.forEach(lecture => {
+                                const option = document.createElement('option');
+                                option.value = lecture.lecture_number;
+                                option.textContent = `Lecture ${lecture.lecture_number} (${lecture.status}, ${lecture.date})`;
+                                lectureSelect.appendChild(option);
+                            });
+                        }
+                    });
+            }
+        });
+        
+        
+    </script>
+</body>
+</html>

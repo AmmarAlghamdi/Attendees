@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mark Attendance - Attendance System</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f0f2f5;
+        }
+        .navbar {
+            background-color: #1a73e8;
+            color: white;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .content {
+            max-width: 800px;
+            margin: 2rem auto;
+            padding: 20px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #1a73e8;
+        }
+        select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            margin-bottom: 20px;
+        }
+        .student-list {
+            margin: 20px 0;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+        .student-item {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            border-bottom: 1px solid #ddd;
+            background-color: white;
+        }
+        .student-item:last-child {
+            border-bottom: none;
+        }
+        .student-info {
+            flex: 1;
+            margin-right: 20px;
+        }
+        .attendance-options {
+            display: flex;
+            gap: 20px;
+        }
+        .radio-group {
+            display: flex;
+            align-items: center;
+        }
+        .radio-group input[type="radio"] {
+            margin-right: 5px;
+        }
+        .radio-group label {
+            color: #333;
+            font-weight: normal;
+        }
+        .present-label {
+            color: #4CAF50 !important;
+        }
+        .absent-label {
+            color: #f44336 !important;
+        }
+        .late-label {
+            color:rgb(253, 215, 0) !important;
+        }
+        button {
+            background-color: #1a73e8;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            width: 100%;
+        }
+        button:hover {
+            background-color: #1557b0;
+        }
+        .back-link {
+            color: white;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .back-link:hover {
+            text-decoration: underline;
+        }
+        .date-info {
+            color: #666;
+            margin-bottom: 20px;
+            text-align: center;
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <h1>Mark Attendance</h1>
+        <nav>
+            <a href="{{ url_for('logout') }}" class="logout-btn">Logout</a>
+            <a href="{{ url_for('doctor') }}" class="back-link">Back to Dashboard</a>
+        </nav>
+    </div>
+
+    <div class="content">
+        <div class="form-group">
+            <label for="courseSelect">Select Course:</label>
+            <select id="courseSelect" onchange="loadStudents()">
+                <option value="">Choose a course</option>
+                {% for course in courses %}
+                <option value="{{ course.id }}">{{ course.code }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="lectureNumber">Lecture Number:</label>
+            <select id="lectureNumber">
+                <option value="1">Lecture 1</option>
+                <option value="2">Lecture 2</option>
+                <option value="3">Lecture 3</option>
+                <option value="4">Lecture 4</option>
+                <option value="5">Lecture 5</option>
+            </select>
+        </div>
+
+        <div class="date-info">
+            Date: <span id="currentDate"></span>
+        </div>
+
+        <div id="studentList" class="student-list">
+            <!-- Students will be loaded here -->
+        </div>
+
+        <button onclick="submitAttendance()">Submit Attendance</button>
+    </div>
+
+    <script>
+        // Set current date
+        document.getElementById('currentDate').textContent = new Date().toLocaleDateString();
+
+        function loadStudents() {
+            const courseId = document.getElementById('courseSelect').value;
+            if (!courseId) return;
+
+            fetch(`/get_course_students/${courseId}`)
+                .then(response => response.json())
+                .then(data => {
+                    const studentList = document.getElementById('studentList');
+                    studentList.innerHTML = '';
+                    data.students.forEach(student => {
+                        studentList.innerHTML += `
+                            <div class="student-item">
+                                <div class="student-info">
+                                    <strong>${student.username}</strong>
+                                    <div>ID: ${student.university_id}</div>
+                                </div>
+                                <div class="attendance-options">
+                                    <div class="radio-group">
+                                        <input type="radio" 
+                                               id="present_${student.id}" 
+                                               name="attendance_${student.id}" 
+                                               value="present">
+                                        <label for="present_${student.id}" class="present-label">Present</label>
+                                    </div>
+                                    <div class="radio-group">
+                                        <input type="radio" 
+                                               id="absent_${student.id}" 
+                                               name="attendance_${student.id}" 
+                                               value="absent" 
+                                               checked>
+                                        <label for="absent_${student.id}" class="absent-label">Absent</label>
+                                    </div>
+                                    <div class="radio-group">
+                                        <input type="radio" 
+                                               id="late_${student.id}" 
+                                               name="attendance_${student.id}" 
+                                               value="late" 
+                                               checked>
+                                        <label for="late_${student.id}" class="late-label">Late</label>
+                                    </div>
+                                </div>
+                                </div>
+                            </div>
+                        `;
+                    });
+                });
+        }
+
+        function submitAttendance() {
+            const courseId = document.getElementById('courseSelect').value;
+            const lectureNumber = document.getElementById('lectureNumber').value;
+        
+            if (!courseId) {
+                alert('Please select a course');
+                return;
+            }
+        
+            const attendanceData = [];
+            const studentItems = document.querySelectorAll('.student-item');
+        
+            studentItems.forEach(item => {
+                const studentId = item.querySelector('input[type="radio"]').name.split('_')[1];
+                const status = item.querySelector(`input[name="attendance_${studentId}"]:checked`).value;
+        
+                attendanceData.push({
+                    student_id: studentId,
+                    status: status
+                });
+            });
+        
+            fetch('/mark_attendance', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    course_id: courseId,
+                    lecture_number: lectureNumber,
+                    attendance: attendanceData
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                alert('Attendance marked successfully!');
+                window.location.href = "{{ url_for('doctor') }}";
+            })
+            .catch(error => {
+                alert('Error marking attendance');
+                console.error(error);
+            });
+        }
+        
+        
+    </script>
+</body>
+</html> 

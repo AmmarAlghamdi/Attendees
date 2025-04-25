@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Attendance System</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f0f2f5;
+        }
+        .navbar {
+            background-color: #1a73e8;
+            color: white;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .navbar h1 {
+            margin: 0;
+        }
+        .content {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+        .dashboard {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        .card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            text-align: center;
+            transition: transform 0.3s;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+        }
+        .card i {
+            font-size: 2.5rem;
+            color: #1a73e8;
+            margin-bottom: 1rem;
+        }
+        .card h3 {
+            margin: 0.5rem 0;
+            color: #333;
+        }
+        .card .number {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #1a73e8;
+            margin: 1rem 0;
+        }
+        .charts-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+        .chart-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .chart-title {
+            text-align: center;
+            color: #333;
+            margin-bottom: 1rem;
+        }
+        nav a {
+            color: white;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+        }
+        nav a:hover {
+            background-color: rgba(255,255,255,0.1);
+        }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <h1>Admin Dashboard</h1>
+        <nav>
+            <a href="{{ url_for('logout') }}">Logout</a>
+        </nav>
+    </div>
+
+    <div class="content">
+        <div class="dashboard">
+            <!-- Overall Attendance Card -->
+            <div class="card">
+                <i class="fas fa-chart-pie"></i>
+                <h3>Overall Attendance Rate</h3>
+                <div class="number">{{ overall_attendance }}%</div>
+                <p>Average attendance across all courses</p>
+            </div>
+
+            <!-- Total Students Card -->
+            <div class="card">
+                <i class="fas fa-user-graduate"></i>
+                <h3>Total Students</h3>
+                <div class="number">{{ total_students }}</div>
+                <p>Enrolled students in the university</p>
+            </div>
+
+            <!-- Total Doctors Card -->
+            <div class="card">
+                <i class="fas fa-user-md"></i>
+                <h3>Total Doctors</h3>
+                <div class="number">{{ total_doctors }}</div>
+                <p>Teaching staff members</p>
+            </div>
+
+            <!-- Total Courses Card -->
+            <div class="card">
+                <i class="fas fa-book"></i>
+                <h3>Total Courses</h3>
+                <div class="number">{{ total_courses }}</div>
+                <p>Active courses this semester</p>
+            </div>
+        </div>
+
+        <div class="charts-container">
+            <!-- Attendance Distribution Chart -->
+            <div class="chart-card">
+                <h3 class="chart-title">Attendance Distribution</h3>
+                <canvas id="attendanceChart"></canvas>
+            </div>
+
+            <!-- Course Performance Chart -->
+            <div class="chart-card">
+                <h3 class="chart-title">Course Performance</h3>
+                <canvas id="courseChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Attendance Distribution Chart
+        const attendanceCtx = document.getElementById('attendanceChart').getContext('2d');
+        new Chart(attendanceCtx, {
+            type: 'pie',
+            data: {
+                labels: ['Present', 'Absent'],
+                datasets: [{
+                    data: [{{ present_count }}, {{ absent_count }}],
+                    backgroundColor: ['#4CAF50', '#f44336']
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'bottom'
+                    }
+                }
+            }
+        });
+
+        // Course Performance Chart
+        const courseCtx = document.getElementById('courseChart').getContext('2d');
+        new Chart(courseCtx, {
+            type: 'bar',
+            data: {
+                labels: {{ course_labels|tojson }},
+                datasets: [{
+                    label: 'Attendance Rate (%)',
+                    data: {{ course_attendance_rates|tojson }},
+                    backgroundColor: '#1a73e8'
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 100
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html> 
